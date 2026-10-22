@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0d1411">
+  <title>RuneScape — Legends of Gielinor</title>
+  <link rel="icon" href="./public/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./public/vendor/three.module.min.js",
+        "three/addons/": "./public/vendor/addons/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="app"></div>
+  <div class="screen-grade"></div>
+  <div class="screen-vignette"></div>
+  <div class="screen-grain"></div>
+  <div class="damage-flash" id="damageFlash"></div>
+  <div class="loading-curtain" id="loadingCurtain"><div class="loading-mark"></div></div>
+
+  <div id="hud" aria-live="polite">
+    <section class="hud-left">
+      <div class="player-card panel">
+        <div class="seal">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3 31 17 46 18 35 29 38 45 24 37 10 45 13 29 2 18 17 17Z" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="24" cy="24" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M24 18v12M18 24h12" stroke="currentColor" stroke-width="1.3"/></svg>
+        </div>
+        <div class="player-info">
+          <div class="player-name">Aeron <span class="combat-level">Combat 12</span></div>
+          <div class="player-sub">Adventurer of Mistwood</div>
+        </div>
+      </div>
+      <div class="vitals-row">
+        <div class="orb orb-hp">
+          <div class="orb-liquid" id="hpLiquid"></div>
+          <div class="orb-gloss"></div>
+          <div class="orb-ring"></div>
+          <span class="orb-value" id="hpValue">82</span>
+          <span class="orb-label">Hitpoints</span>
+        </div>
+        <div class="orb orb-run">
+          <div class="orb-liquid" id="runLiquid"></div>
+          <div class="orb-gloss"></div>
+          <div class="orb-ring"></div>
+          <span class="orb-value" id="runValue">100</span>
+          <span class="orb-label">Run</span>
+        </div>
+        <div class="controls-hint">
+          <span><kbd>WASD</kbd> Move</span>
+          <span><kbd>Shift</kbd> Sprint</span>
+          <span><kbd>Drag</kbd> Look</span>
+          <span><kbd>E</kbd> Interact</span>
+          <span><kbd>Click</kbd> Attack</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="minimap panel" id="minimapPanel">
+      <div class="minimap-head">
+        <span class="zone-name">Mistwood Vale</span>
+        <span class="world-time" id="worldTime">18:42</span>
+      </div>
+      <div class="minimap-frame">
+        <canvas id="minimap" width="340" height="340"></canvas>
+        <div class="minimap-ring"></div>
+        <div class="minimap-n">N</div>
+        <button class="minimap-expand" id="openMap" aria-label="Open world map" title="World map">
+          <svg viewBox="0 0 24 24"><path d="M4 5.5 9 3l6 2.5L20 3v15.5L15 21l-6-2.5L4 21Z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 3v15.5M15 5.5V21" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+        </button>
+      </div>
+      <div class="minimap-actions">
+        <button id="soundToggle" title="Ambient sound"><span class="sound-icon" id="soundIcon">♪</span></button>
+        <button id="helpToggle" title="How to play">?</button>
+        <button id="mapToggle" title="World map">
+          <svg viewBox="0 0 24 24"><path d="M4 5.5 9 3l6 2.5L20 3v15.5L15 21l-6-2.5L4 21Z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <section class="quest-panel panel" id="questPanel">
+      <div class="panel-heading">
+        <svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6Z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M15 3v5h4M9 11h7M9 15h7M9 7h3" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+        <span id="questTitle">The Goblin Menace</span>
+      </div>
+      <p id="questText">Speak with <b>Elder Rowan</b> by the fire in the village square.</p>
+      <div class="quest-objective" id="questObjective" hidden>
+        <div class="quest-bar"><i id="questFill"></i></div>
+        <span id="questCount">0 / 5 goblins slain</span>
+      </div>
+      <div class="quest-reward"><span>Reward</span><b>250 coins <i>·</i> 120 Attack XP</b></div>
+    </section>
+
+    <div class="location-banner" id="locationBanner">
+      <span class="loc-rule"></span>
+      <div><small>Welcome to</small><strong>Mistwood Vale</strong><em>Where the old stones remember</em></div>
+      <span class="loc-rule"></span>
+    </div>
+
+    <div class="target-panel panel" id="targetPanel" hidden>
+      <div class="target-head"><span id="targetName">Goblin</span><span id="targetLevel">Combat 3</span></div>
+      <div class="target-bar"><i id="targetFill"></i></div>
+      <div class="target-foot"><span id="targetHp">30 / 30</span><span>Click to attack</span></div>
+    </div>
+
+    <div class="toast-stack" id="toastStack"></div>
+
+    <div class="context-prompt" id="contextPrompt" hidden>
+      <kbd>E</kbd><span id="contextLabel">Talk to Elder Rowan</span>
+    </div>
+
+    <div class="harvest-panel" id="harvestPanel" hidden>
+      <div class="harvest-label" id="harvestLabel">Chopping oak...</div>
+      <div class="harvest-bar"><i id="harvestFill"></i></div>
+    </div>
+
+    <section class="chat-panel panel">
+      <div class="chat-tabs">
+        <button class="active" data-tab="all">All</button>
+        <button data-tab="game">Game</button>
+        <button data-tab="clan">Clan</button>
+        <span class="chat-channel">Mistwood Vale</span>
+      </div>
+      <div class="chat-log" id="chatLog"></div>
+      <form class="chat-form" id="chatForm">
+        <span class="chat-caret">›</span>
+        <input id="chatInput" type="text" maxlength="90" autocomplete="off" placeholder="Press Enter to speak…">
+        <span class="chat-key">Enter</span>
+      </form>
+    </section>
+
+    <div class="center-bottom">
+      <div class="xp-panel panel">
+        <span class="xp-skill" id="xpSkill">Attack</span>
+        <div class="xp-bar"><i id="xpFill"></i></div>
+        <span class="xp-numbers" id="xpNumbers">1,204 / 2,000</span>
+      </div>
+      <div class="hotbar" id="hotbar"></div>
+    </div>
+
+    <section class="right-bottom">
+      <div class="skills-strip" id="skillsStrip"></div>
+      <div class="inventory-panel panel">
+        <div class="inventory-head">
+          <span>Inventory</span>
+          <span class="coin-pouch"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v8M9.5 10.2c0-1.1 1.1-1.8 2.5-1.8s2.5.7 2.5 1.8-1.1 1.6-2.5 2-2.5.9-2.5 2 1.1 1.8 2.5 1.8 2.5-.7 2.5-1.8" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><b id="coinCount">25</b></span>
+        </div>
+        <div class="inventory-grid" id="inventoryGrid"></div>
+        <div class="inventory-foot">Click an item to equip or use it</div>
+      </div>
+    </section>
+
+    <div class="tooltip" id="tooltip" hidden></div>
+  </div>
+
+  <div class="overlay dialog-overlay" id="dialogOverlay" hidden>
+    <div class="npc-dialog panel">
+      <div class="dialog-portrait" id="dialogPortrait">R</div>
+      <div class="dialog-copy">
+        <div class="dialog-name" id="dialogName">Elder Rowan</div>
+        <p id="dialogText"></p>
+        <div class="dialog-actions" id="dialogActions"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="mapOverlay" hidden>
+    <div class="map-modal panel">
+      <div class="modal-head">
+        <div><small>The realm of</small><h2>Mistwood Vale</h2></div>
+        <button class="modal-close" data-close="mapOverlay" aria-label="Close map">×</button>
+      </div>
+      <div class="map-canvas-wrap"><canvas id="bigMap" width="880" height="560"></canvas><div class="map-pin pin-village">Village</div><div class="map-pin pin-castle">Castle</div><div class="map-pin pin-stones">Old Stones</div><div class="map-pin pin-lake">Lake</div></div>
+      <div class="map-legend"><span><i class="dot gold"></i>Quest</span><span><i class="dot red"></i>Goblins</span><span><i class="dot green"></i>Village</span><span><i class="dot blue"></i>Water</span><span class="map-tip">Click the map to place a waypoint</span></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="helpOverlay" hidden>
+    <div class="help-modal panel">
+      <div class="modal-head">
+        <div><small>Adventurer's handbook</small><h2>How to Play</h2></div>
+        <button class="modal-close" data-close="helpOverlay" aria-label="Close help">×</button>
+      </div>
+      <div class="help-grid">
+        <div class="help-card"><h3>Explore</h3><p><kbd>W A S D</kbd> to move, hold <kbd>Shift</kbd> to sprint, drag the mouse to orbit the camera, and scroll to zoom. Click the ground to walk there.</p></div>
+        <div class="help-card"><h3>Fight</h3><p>Click a goblin to target it, then press <kbd>1</kbd> or click it again to attack. Keep your hitpoints up with cooked trout.</p></div>
+        <div class="help-card"><h3>Gather</h3><p>Equip the axe or pickaxe, then press <kbd>E</kbd> near a tree or ore rock. Every haul grants experience and valuable materials.</p></div>
+        <div class="help-card"><h3>Quest</h3><p>Elder Rowan waits by the village fire. Speak with him to begin <b>The Goblin Menace</b> and earn coins and experience.</p></div>
+      </div>
+      <div class="help-tip"><span class="seal-mini">✦</span> Tip: The glowing altar in the western woods hides a small blessing. The world is yours to wander.</div>
+    </div>
+  </div>
+
+  <div class="levelup-overlay" id="levelupOverlay" hidden>
+    <div class="levelup-rays"></div>
+    <div class="levelup-card">
+      <small>Your skill has grown</small>
+      <h2 id="levelupSkill">Woodcutting</h2>
+      <div class="levelup-number" id="levelupLevel">9</div>
+      <p>Congratulations, adventurer.</p>
+    </div>
+  </div>
+
+  <div class="death-overlay" id="deathOverlay" hidden>
+    <div class="death-card">
+      <small>Mistwood claims another</small>
+      <h2>You have fallen</h2>
+      <p>Your body returns to the village shrine. Take a breath, then try again.</p>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
