@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#12140f" />
+  <title>GREYHAVEN — Dead Harvest</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23d9a45e' d='M32 2 58 16v32L32 62 6 48V16z'/%3E%3Cpath fill='%2313150f' d='M18 42V29l14-10 14 10v13h-8V32l-6-4-6 4v10z'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="app">
+    <canvas id="scene" aria-label="Greyhaven 3D settlement"></canvas>
+    <div class="grade"></div>
+    <div class="vignette"></div>
+    <div class="grain"></div>
+    <div class="scan"></div>
+
+    <header class="brand" aria-label="Greyhaven">
+      <div class="brand-emblem">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <path class="emblem-edge" d="M32 2.8 58 16.4v31.8L32 61.8 6 48.2V16.4Z"/>
+          <path class="emblem-house" d="M18.5 41.5V29.7L32 19.4l13.5 10.3v11.8h-8.1V32.2L32 28.1l-5.4 4.1v9.3Z"/>
+          <path class="emblem-wave" d="M25.7 13.6a9 9 0 0 1 12.6 0M21.8 9.6a14.6 14.6 0 0 1 20.4 0"/>
+          <path class="emblem-tick" d="M32 46v7M25 50.5h14"/>
+        </svg>
+      </div>
+      <div class="brand-copy">
+        <div class="brand-kicker">ST. JUDE'S FARMSTEAD <span>•</span> EST. 2019</div>
+        <h1>GREYHAVEN</h1>
+        <div class="brand-sub">DEAD HARVEST <i></i> SURVIVAL COLONY</div>
+      </div>
+    </header>
+
+    <div class="top-resources panel" aria-label="Settlement resources">
+      <div class="res-item" data-res="food">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9h10l-1.2 11H8.2L7 9Zm1-3.5c0-1.4 1.1-2.5 2.5-2.5S13 4.1 13 5.5V6h-2v-.5a.5.5 0 0 0-1 0V6H8V5.5Zm5 0c0-1.4 1.1-2.5 2.5-2.5S18 4.1 18 5.5V6h-2v-.5a.5.5 0 0 0-1 0V6h-2V5.5Z"/><path d="M9 12h6M9.3 15.5h5.4"/></svg>
+        <div class="res-copy"><span class="res-label">FOOD</span><strong id="res-food">48</strong></div>
+        <span class="res-rate" id="rate-food">+2</span>
+      </div>
+      <div class="res-item" data-res="wood">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.2 16.7 15.5 4.1l4.5 4.1-11.4 12.6-4.4-4.1Z"/><path d="m13.2 6.7 4.4 4M10.7 9.4l4.4 4M8.1 12.1l4.4 4"/><circle cx="6.7" cy="16.7" r="1.7"/></svg>
+        <div class="res-copy"><span class="res-label">WOOD</span><strong id="res-wood">120</strong></div>
+        <span class="res-rate" id="rate-wood">+3</span>
+      </div>
+      <div class="res-item" data-res="scrap">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.3 2.5-2 6.2 5.2 1.5-7.8 11.3 2.2-7.7-4.8-2.1L14.3 2.5Z"/></svg>
+        <div class="res-copy"><span class="res-label">SCRAP</span><strong id="res-scrap">75</strong></div>
+        <span class="res-rate" id="rate-scrap">+1</span>
+      </div>
+      <div class="res-item" data-res="meds">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6V3Z"/><path d="M9 9h6v6H9z"/></svg>
+        <div class="res-copy"><span class="res-label">MEDS</span><strong id="res-meds">12</strong></div>
+        <span class="res-rate dim" id="rate-meds">0</span>
+      </div>
+      <div class="res-item" data-res="ammo">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5 10 2h4l2 3.5V21H8V5.5Z"/><path d="M8 8h8M8 18h8"/></svg>
+        <div class="res-copy"><span class="res-label">AMMO</span><strong id="res-ammo">60</strong></div>
+        <span class="res-rate dim" id="rate-ammo">0</span>
+      </div>
+    </div>
+
+    <div class="clock-block">
+      <div class="clock-readout">
+        <span class="clock-day" id="clock-day">DAY 07</span>
+        <strong id="clock-time">19:42</strong>
+        <span class="clock-phase" id="clock-phase">DUSK</span>
+      </div>
+      <div class="sun-track">
+        <div class="sun-line"></div>
+        <div class="sun-dot" id="sun-dot"></div>
+      </div>
+      <div class="nightfall" id="nightfall"><span>NIGHTFALL</span> <strong id="night-countdown">02:36</strong></div>
+    </div>
+
+    <aside class="right-rail">
+      <section class="panel colony-panel">
+        <div class="panel-head">
+          <div><span class="eyebrow">COLONY ROSTER</span><h2>SURVIVORS</h2></div>
+          <div class="count-badge"><strong id="survivor-count">04</strong><span>/ 06</span></div>
+        </div>
+        <div id="survivor-list" class="survivor-list"></div>
+        <div class="colony-stats">
+          <div class="stat-row">
+            <div class="stat-line"><span>DEFENSE</span><strong id="stat-defense">42</strong></div>
+            <div class="meter"><i id="defense-fill" style="width:42%"></i></div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-line"><span>MORALE</span><strong id="stat-morale">68</strong></div>
+            <div class="meter amber"><i id="morale-fill" style="width:68%"></i></div>
+          </div>
+          <div class="threat-line">
+            <span class="pulse-dot"></span>
+            <span>THREAT LEVEL</span>
+            <strong id="stat-threat">ELEVATED</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel dispatch-panel">
+        <div class="panel-head compact">
+          <div><span class="eyebrow">RADIO / CH. 09</span><h2>DISPATCH</h2></div>
+          <div class="signal" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="event-log" id="event-log">
+          <div class="log-line"><time>19:38</time><p>North fence rattled. No breach.</p></div>
+          <div class="log-line"><time>19:26</time><p>June treated Eli's cut. <b>+6 meds</b></p></div>
+          <div class="log-line"><time>19:04</time><p>Scavenger cache marked on Route 9.</p></div>
+        </div>
+        <button class="scavenge-btn" id="btn-scavenge">
+          <span class="scavenge-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19 19 4M7 4H4v3M17 20h3v-3"/><circle cx="12" cy="12" r="4"/><path d="M12 8v1M12 15v1M8 12h1M15 12h1"/></svg>
+          </span>
+          <span><b>SEND SCAVENGERS</b><small id="scavenge-sub">3 locations available</small></span>
+          <em>›</em>
+        </button>
+        <div class="mission-progress hidden" id="mission-progress">
+          <div class="mission-top"><span id="mission-name">HARDWARE STORE</span><strong id="mission-time">00:18</strong></div>
+          <div class="meter"><i id="mission-fill" style="width:0%"></i></div>
+        </div>
+      </section>
+    </aside>
+
+    <section class="panel objective-panel" id="objective-panel">
+      <div class="objective-flag">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V3m0 0 11 3-11 4"/></svg>
+      </div>
+      <div class="objective-copy">
+        <span class="eyebrow">CURRENT DIRECTIVE</span>
+        <h2 id="obj-title">FORTIFY BEFORE DARK</h2>
+        <p id="obj-desc">Raise defense to <b>55</b>. The north fence is the weak point.</p>
+        <div class="objective-meta"><span id="obj-progress">DEFENSE 42 / 55</span><strong id="obj-percent">76%</strong></div>
+        <div class="meter"><i id="obj-fill" style="width:76%"></i></div>
+      </div>
+    </section>
+
+    <div class="control-strip" id="control-strip">
+      <span><kbd>LMB</kbd> ORBIT</span><i></i>
+      <span><kbd>WASD</kbd> PAN</span><i></i>
+      <span><kbd>SCROLL</kbd> ZOOM</span><i></i>
+      <span><kbd>B</kbd> BUILD</span><i></i>
+      <span><kbd>R</kbd> ROTATE</span>
+    </div>
+
+    <button class="build-button" id="btn-build">
+      <span class="build-key">B</span>
+      <span class="build-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 21 7.2-7.2M8.5 5.2l2.3-2.3 10.3 10.3-2.3 2.3M9.8 6.5l7.7 7.7M5.2 17.6l1.2 1.2M17.2 3.7l1.6-1.6 3.1 3.1-1.6 1.6"/><path d="M4 13.5V20h6.5l-1.8-6.3-4.7-.2Z"/></svg>
+      </span>
+      <span class="build-copy"><small>SETTLEMENT</small><strong>BUILD MODE</strong></span>
+    </button>
+
+    <div class="build-ui hidden" id="build-ui">
+      <div class="build-top panel">
+        <div class="build-title"><span class="workshop-mark">✚</span><div><span class="eyebrow">WORKSHOP / GRID SNAP</span><h2>SETTLEMENT MODE</h2></div></div>
+        <div class="build-wallet" aria-label="Available resources">
+          <span><i>FOOD</i><b id="build-res-food">48</b></span>
+          <span><i>WOOD</i><b id="build-res-wood">120</b></span>
+          <span><i>SCRAP</i><b id="build-res-scrap">75</b></span>
+          <span><i>MEDS</i><b id="build-res-meds">12</b></span>
+          <span><i>AMMO</i><b id="build-res-ammo">60</b></span>
+        </div>
+        <div class="build-stats"><span><b id="build-count">03</b> STRUCTURES</span><i></i><span>CAP <b id="build-cap">16</b></span><i></i><span class="build-exit-hint"><kbd>B</kbd> EXIT</span></div>
+      </div>
+      <div class="build-toast" id="build-toast">SELECT A CONSTRUCTION</div>
+      <div class="build-palette" id="build-palette"></div>
+      <div class="build-bottom">
+        <div class="selected-build panel" id="selected-build">
+          <span class="sb-icon" id="sb-icon"></span>
+          <div class="sb-copy"><span class="eyebrow" id="sb-tag">STRUCTURE</span><h3 id="sb-name">BARRICADE</h3><p id="sb-desc">Blocks walkers. Adds perimeter defense.</p></div>
+          <div class="sb-cost" id="sb-cost"></div>
+        </div>
+        <div class="build-tip"><kbd>R</kbd> ROTATE <span>•</span> <kbd>CLICK</kbd> PLACE <span>•</span> <kbd>ESC</kbd> CANCEL</div>
+      </div>
+    </div>
+
+    <div class="hover-label hidden" id="hover-label"></div>
+    <div class="toast-stack" id="toast-stack"></div>
+
+    <div class="modal-wrap hidden" id="scavenge-modal">
+      <div class="modal-scrim"></div>
+      <section class="modal panel">
+        <button class="modal-close" id="modal-close" aria-label="Close">×</button>
+        <span class="eyebrow">RADIO DISPATCH / ROUTE RECON</span>
+        <h2>CHOOSE A SALVAGE RUN</h2>
+        <p class="modal-intro">Send one survivor beyond the wire. Higher risk brings better salvage — and a chance they come back hurt.</p>
+        <div class="location-list" id="location-list"></div>
+        <div class="modal-foot"><span>ALL RUNS TAKE <b>20 SECONDS</b></span><span class="modal-warn">WALKER ACTIVITY: HIGH</span></div>
+      </section>
+    </div>
+
+    <div class="alert-banner hidden" id="alert-banner">
+      <span class="alert-icon">!</span>
+      <div><small id="alert-tag">PERIMETER ALERT</small><strong id="alert-text">HORDE INBOUND — NORTH GATE</strong></div>
+      <div class="alert-timer" id="alert-timer">00:25</div>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="loading-mark">
+        <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 2.8 58 16.4v31.8L32 61.8 6 48.2V16.4Z"/><path d="M18.5 41.5V29.7L32 19.4l13.5 10.3v11.8h-8.1V32.2L32 28.1l-5.4 4.1v9.3Z"/></svg>
+      </div>
+      <div class="loading-copy"><span>ESTABLISHING UPLINK</span><strong>GREYHAVEN</strong></div>
+      <div class="loading-line"><i></i></div>
+    </div>
+  </div>
+  <script type="module" src="./src/game.js"></script>
+</body>
+</html>
